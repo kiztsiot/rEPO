@@ -1,0 +1,23 @@
+<article class="tarjeta" [class.vencido]="prestamo().vencido" [class.devuelto]="prestamo().estado === 'DEVUELTO'">
+  <div class="principal">
+    <h3 class="titulo">{{ prestamo().tituloLibro }}</h3>
+    <p class="fechas">
+      Prestado el {{ desde() }} · vence el {{ hasta() }}@if (devuelto(); as d) { · devuelto el {{ d }} }
+    </p>
+  </div>
+
+  <div class="lado">
+    @if (prestamo().estado === 'DEVUELTO') {
+      <span class="chip chip-neutro">Devuelto</span>
+    } @else if (prestamo().vencido) {
+      <span class="chip chip-alerta">Vencido</span>
+    } @else {
+      <span class="chip chip-ok">En préstamo</span>
+    }
+
+    @if (prestamo().estado === 'ACTIVO') {
+      <button type="button" class="btn btn-chico btn-primario" [disabled]="ocupado()"
+        (click)="devolver.emit(prestamo())">Devolver</button>
+    }
+  </div>
+</article>

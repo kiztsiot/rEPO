@@ -1,0 +1,37 @@
+<article class="tarjeta" [class.agotado]="!libro().disponible">
+  <header class="cabecera">
+    <span class="chip chip-neutro">{{ libro().categoria }}</span>
+    <h3 class="titulo">{{ libro().titulo }}</h3>
+    <p class="autor">{{ libro().autor }} · {{ libro().anioPublicacion }}</p>
+  </header>
+
+  <p class="isbn">ISBN {{ libro().isbn }}</p>
+
+  <div class="estado">
+    @if (libro().disponible) {
+      <span class="chip chip-ok">{{ libro().ejemplaresDisponibles }} de {{ libro().ejemplaresTotales }} disponibles</span>
+    } @else {
+      <span class="chip chip-alerta">Agotado · 0 de {{ libro().ejemplaresTotales }}</span>
+    }
+  </div>
+
+  @if (disponibilidad(); as d) {
+    <p class="detalle" role="status">
+      @if (d.disponible) {
+        Puedes pedirlo ahora: quedan {{ d.ejemplaresDisponibles }} copia(s).
+      } @else if (proxima(); as fecha) {
+        Todas las copias están prestadas. La próxima vence el {{ fecha }}.
+      } @else {
+        Todas las copias están prestadas.
+      }
+    </p>
+  }
+
+  <footer class="acciones">
+    <button type="button" class="btn btn-chico" (click)="consultar.emit(libro())">Ver disponibilidad</button>
+    <button type="button" class="btn btn-chico btn-primario"
+      [disabled]="!libro().disponible || !puedePrestar() || ocupado()"
+      [title]="!puedePrestar() ? 'Elige un socio en la cabecera' : !libro().disponible ? 'No quedan copias' : 'Prestar este libro'"
+      (click)="prestar.emit(libro())">Prestar</button>
+  </footer>
+</article>

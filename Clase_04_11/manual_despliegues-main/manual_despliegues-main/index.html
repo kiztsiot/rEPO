@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Guía paso a paso para desplegar un proyecto Angular en Vercel desde GitHub.">
+<title>Manual Angular en Vercel</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Concepto: manual de campo en una columna de lectura, con índice lateral fijo y capturas como protagonistas.
+   Color: tinta fría + rojo Angular solo para pasos y avisos. Tipos: Bricolage (títulos), Instrument Sans (texto), JetBrains Mono (comandos). */
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --ink:#14161a; --muted:#5a616c; --line:#dde0e6;
+  --accent:#c4002b; --accent-ink:#ffffff; --code:#eceef2; --ok:#1a7f4b; --warn:#9a5b00; --warn-bg:#fff4dd;
+  --font-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --font-body:"Instrument Sans","Segoe UI",system-ui,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1115; --surface:#171a20; --ink:#eceef2; --muted:#9aa1ac; --line:#2a2e37;
+  --accent:#ff5a78; --accent-ink:#14161a; --code:#1f232b; --ok:#4ad08a; --warn:#f0b24a; --warn-bg:#2a2214; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1115; --surface:#171a20; --ink:#eceef2; --muted:#9aa1ac; --line:#2a2e37;
+  --accent:#ff5a78; --accent-ink:#14161a; --code:#1f232b; --ok:#4ad08a; --warn:#f0b24a; --warn-bg:#2a2214; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+img{max-width:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto}
+header.top{padding-block:56px 36px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:var(--font-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+h1{font-family:var(--font-display);font-weight:700;font-size:clamp(34px,6vw,58px);line-height:1.04;letter-spacing:-.02em;margin:0 0 18px;text-wrap:balance;max-width:18ch}
+.lede{font-size:19px;color:var(--muted);max-width:60ch;margin:0 0 24px}
+.meta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px;color:var(--muted);margin:0;padding:0;list-style:none}
+.meta b{color:var(--ink);font-weight:600}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr);gap:40px;padding-top:36px}
+nav.toc{font-size:14px}
+nav.toc h2{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;font-weight:500}
+nav.toc ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+nav.toc a{display:block;padding:6px 10px;border:1px solid var(--line);border-radius:6px;text-decoration:none;color:var(--ink);background:var(--surface)}
+nav.toc a:hover{border-color:var(--accent)}
+@media (min-width:960px){
+  .layout{grid-template-columns:220px minmax(0,1fr);gap:56px}
+  nav.toc{position:sticky;top:24px;align-self:start}
+  nav.toc ol{flex-direction:column;gap:2px}
+  nav.toc a{border:0;background:none;padding:6px 0;color:var(--muted)}
+  nav.toc a:hover{color:var(--accent)}
+}
+
+main{min-width:0;max-width:760px}
+h2{font-family:var(--font-display);font-weight:700;font-size:clamp(24px,3.4vw,32px);line-height:1.15;letter-spacing:-.01em;margin:0 0 12px;text-wrap:balance}
+h3{font-family:var(--font-display);font-size:19px;margin:28px 0 8px}
+p{margin:0 0 14px}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--code);padding:2px 6px;border-radius:4px;overflow-wrap:anywhere}
+pre{font-family:var(--font-mono);font-size:14px;background:var(--code);padding:14px 16px;border-radius:8px;overflow-x:auto;margin:0 0 16px;position:relative}
+pre code{background:none;padding:0}
+.copy{position:absolute;top:8px;right:8px;font:500 12px var(--font-body);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:4px 9px;cursor:pointer}
+pre{padding-right:76px}
+
+section.block{padding-block:40px;border-top:1px solid var(--line)}
+section.block:first-of-type{border-top:0;padding-top:8px}
+.step-h{display:flex;gap:14px;align-items:baseline}
+.n{flex:none;font-family:var(--font-mono);font-weight:500;font-size:14px;background:var(--accent);color:var(--accent-ink);border-radius:6px;padding:3px 9px;transform:translateY(-3px)}
+ul.l,ol.l{padding-left:22px;margin:0 0 16px}
+ul.l li,ol.l li{margin-bottom:6px}
+
+figure{margin:20px 0 8px}
+figure button{display:block;width:100%;padding:0;border:1px solid var(--line);border-radius:10px;background:var(--surface);cursor:zoom-in;overflow:hidden}
+figure img{display:block;width:100%;height:auto}
+figcaption{font-size:14px;color:var(--muted);margin-top:8px}
+
+.note{border-left:3px solid var(--accent);background:var(--surface);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0;font-size:16px}
+.note.warn{border-color:var(--warn);background:var(--warn-bg)}
+.note strong:first-child{display:block;font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+
+table{width:100%;border-collapse:collapse;font-size:15px;margin:8px 0 16px}
+.tw{overflow-x:auto}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td:first-child{font-weight:600;white-space:nowrap}
+
+details{border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-bottom:10px}
+summary{cursor:pointer;padding:14px 16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px}
+summary::after{content:"+";font-family:var(--font-mono);color:var(--accent)}
+details[open] summary::after{content:"\2212"}
+details .in{padding:0 16px 8px}
+
+.check{list-style:none;padding:0;margin:0}
+.check li{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.check li::before{content:"\2713";color:var(--ok);font-weight:700}
+
+dialog.zoom{border:0;padding:0;background:transparent;max-width:96vw;max-height:94vh}
+dialog.zoom::backdrop{background:rgba(0,0,0,.78)}
+dialog.zoom img{display:block;max-width:96vw;max-height:94vh;border-radius:8px;cursor:zoom-out}
+footer{padding-top:32px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<header class="top">
+  <p class="eyebrow">Angular 21 · Vercel · GitHub</p>
+  <h1>Subir un proyecto Angular a Vercel</h1>
+  <p class="lede">Paso a paso con capturas reales, desde iniciar sesión hasta tener el sitio publicado. El ejemplo es un tablero Kanban hecho con Angular 21 y alojado en GitHub, desplegado en el plan gratuito.</p>
+  <ul class="meta">
+    <li><b>Repositorio de ejemplo:</b> <code>cbarralesp/kanban-frontend</code></li>
+    <li><b>Plan:</b> Hobby (gratis)</li>
+    <li><b>Tiempo de despliegue:</b> 26 segundos</li>
+  </ul>
+</header>
+
+<div class="layout">
+<nav class="toc" aria-label="Índice">
+  <h2>En esta guía</h2>
+  <ol>
+    <li><a href="#antes">Antes de empezar</a></li>
+    <li><a href="#p1">1. Iniciar sesión</a></li>
+    <li><a href="#p2">2. Nuevo proyecto</a></li>
+    <li><a href="#p3">3. Dar acceso al repo</a></li>
+    <li><a href="#p4">4. Configurar</a></li>
+    <li><a href="#p5">5. Deploy</a></li>
+    <li><a href="#p6">6. Resultado</a></li>
+    <li><a href="#problemas">Problemas comunes</a></li>
+    <li><a href="#despues">Después del deploy</a></li>
+    <li><a href="#limites">Límites del plan gratis</a></li>
+    <li><a href="#pages">GitHub Pages</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section class="block" id="antes">
+  <h2>Antes de empezar</h2>
+  <p>Vercel no recibe el proyecto por correo ni por carpeta: lo lee desde un repositorio Git y lo compila en sus servidores. Por eso necesitas tres cosas.</p>
+  <ul class="check">
+    <li><span><b>Un repositorio en GitHub</b> con tu proyecto Angular ya subido (rama <code>main</code>). Debe estar en tu usuario personal si usas el plan gratis.</span></li>
+    <li><span><b>Una cuenta en Vercel.</b> Puedes entrar con Google, GitHub o correo. Con GitHub el repositorio queda enlazado más rápido.</span></li>
+    <li><span><b>Un proyecto que compile.</b> Pruébalo en tu equipo antes de subir:</span></li>
+  </ul>
+  <pre><button class="copy" type="button">Copiar</button><code>npm install
+npm run build</code></pre>
+  <p>Si ese comando falla en tu equipo, también fallará en Vercel. La carpeta con el resultado queda en <code>dist/&lt;nombre-del-proyecto&gt;/browser</code>.</p>
+</section>
+
+<section class="block" id="p1">
+  <div class="step-h"><span class="n">1</span><h2>Iniciar sesión en Vercel</h2></div>
+  <p>Entra a <a href="https://vercel.com/login" target="_blank" rel="noopener">vercel.com/login</a> y elige tu método. Vercel marca con <em>Last Used</em> el que usaste la última vez.</p>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/01-login.png" alt="Pantalla Log in to Vercel con opciones de correo, Google, GitHub y ChatGPT" loading="lazy"></button><figcaption>Pantalla de inicio de sesión de Vercel.</figcaption></figure>
+
+  <h3>Si tu cuenta tiene verificación en dos pasos</h3>
+  <p>Vercel pide el código de 6 dígitos de tu app de autenticación. Escríbelo y pulsa <strong>Verify</strong>. Si perdiste el acceso, usa <em>Use a Recovery Code Instead</em>.</p>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/02-verificacion.png" alt="Pantalla Open Your Authenticator App con seis casillas para el código" loading="lazy"></button><figcaption>Verificación en dos pasos (2FA).</figcaption></figure>
+  <div class="note"><strong>Seguridad</strong>No compartas capturas con la dirección completa de esta pantalla: la URL lleva un token temporal.</div>
+</section>
+
+<section class="block" id="p2">
+  <div class="step-h"><span class="n">2</span><h2>Crear un proyecto nuevo</h2></div>
+  <p>En el panel principal pulsa <strong>Create New</strong> (arriba a la derecha) y luego <strong>Project</strong>. El menú también ofrece Domain, Store, Integration y otras opciones que no necesitas ahora.</p>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/03-dashboard.png" alt="Panel de Vercel con el menú Create New desplegado" loading="lazy"></button><figcaption>Panel del equipo: Create New → Project.</figcaption></figure>
+  <p>Se abre <strong>Import Git Repository</strong>, con la lista de repositorios de tu cuenta de GitHub. Cada uno tiene un botón <strong>Import</strong>.</p>
+</section>
+
+<section class="block" id="p3">
+  <div class="step-h"><span class="n">3</span><h2>Dar acceso al repositorio</h2></div>
+  <p>Si tu repositorio no aparece en la lista, Vercel todavía no tiene permiso para verlo. Es lo más común con repos recién creados.</p>
+  <ol class="l">
+    <li>Debajo de la lista pulsa <strong>Adjust GitHub App Permissions</strong>.</li>
+  </ol>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/04-importar-repo.png" alt="Lista de importación con el enlace Adjust GitHub App Permissions resaltado" loading="lazy"></button><figcaption>El enlace queda justo bajo la lista de repositorios.</figcaption></figure>
+  <ol class="l" start="2">
+    <li>GitHub abre la configuración de la app de Vercel (<em>Settings → Applications</em>).</li>
+  </ol>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/05-github-app.png" alt="Página de la app de Vercel instalada en GitHub" loading="lazy"></button><figcaption>Configuración de la app instalada en GitHub.</figcaption></figure>
+  <ol class="l" start="3">
+    <li>Baja hasta <strong>Repository access</strong>. Deja marcado <strong>Only select repositories</strong>, abre <em>Select repositories</em> y agrega el repo nuevo.</li>
+    <li>Pulsa <strong>Save</strong>.</li>
+  </ol>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/06-acceso-repo.png" alt="Repository access con kanban-frontend agregado a los repositorios seleccionados" loading="lazy"></button><figcaption>Aquí quedan autorizados <code>kanban-frontend</code> y el otro repositorio de la cuenta.</figcaption></figure>
+  <p>Vuelve a Vercel y recarga la página <em>New Project</em>. Ahora el repositorio aparece en la lista. Pulsa <strong>Import</strong>.</p>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/07-repo-listo.png" alt="Lista de importación con kanban-frontend y su botón Import" loading="lazy"></button><figcaption>Repositorio visible y listo para importar.</figcaption></figure>
+  <div class="note"><strong>Dato útil</strong>Elegir «Only select repositories» es lo más seguro: Vercel solo ve los repos que tú autorizas.</div>
+</section>
+
+<section class="block" id="p4">
+  <div class="step-h"><span class="n">4</span><h2>Configurar el proyecto</h2></div>
+  <p>En la pantalla <strong>New Project</strong> Vercel detecta Angular y rellena casi todo.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Campo</th><th>Qué poner</th></tr></thead>
+    <tbody>
+      <tr><td>Vercel Team</td><td>Tu equipo personal (aquí <code>crbarrales</code>, plan Hobby).</td></tr>
+      <tr><td>Project Name</td><td>El nombre que dará la URL <code>nombre.vercel.app</code>. Minúsculas y guiones.</td></tr>
+      <tr><td>Root Directory</td><td><code>./</code>. Cámbialo solo si el Angular vive en una subcarpeta del repo.</td></tr>
+      <tr><td>Application Preset</td><td><code>Angular</code>. Si dice «Other», selecciónalo a mano.</td></tr>
+    </tbody>
+  </table></div>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/08-configurar.png" alt="Pantalla New Project con equipo, nombre, directorio raíz y preset Angular" loading="lazy"></button><figcaption>Importando <code>cbarralesp/kanban-frontend</code>, rama <code>main</code>.</figcaption></figure>
+
+  <h3>Build and Output Settings</h3>
+  <p>Despliega la sección para revisarla. Los textos en gris son valores por defecto de Vercel. <strong>Déjalos vacíos</strong>: el preset de Angular lee tu <code>angular.json</code> y deduce la carpeta de salida.</p>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/09-build-env.png" alt="Secciones Build and Output Settings y Environment Variables desplegadas" loading="lazy"></button><figcaption>Build Command, Output Directory, Install Command y variables de entorno.</figcaption></figure>
+  <div class="tw"><table>
+    <thead><tr><th>Campo</th><th>Valor</th></tr></thead>
+    <tbody>
+      <tr><td>Build Command</td><td><code>ng build</code> o <code>npm run build</code> (por defecto)</td></tr>
+      <tr><td>Output Directory</td><td>Por defecto. Para este proyecto es <code>dist/kanban-frontend/browser</code>.</td></tr>
+      <tr><td>Install Command</td><td><code>npm install</code> (por defecto)</td></tr>
+      <tr><td>Environment Variables</td><td>Vacío, salvo que uses variables propias.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="block" id="p5">
+  <div class="step-h"><span class="n">5</span><h2>Pulsar Deploy</h2></div>
+  <p>Con todo revisado, pulsa el botón negro <strong>Deploy</strong>. Si Vercel te pide confirmar tu identidad otra vez (reautenticación), introduce el código de tu app de autenticación y continúa.</p>
+  <p>Aparece la pantalla <strong>Deployment</strong> con el progreso:</p>
+  <ul class="l">
+    <li><strong>Build Logs:</strong> el registro de <code>npm install</code> y <code>ng build</code>. Un aviso amarillo como <code>npm warn Unknown env config "cache-dir"</code> es normal y no bloquea nada.</li>
+    <li><strong>Deployment Summary</strong> y <strong>Deployment Checks:</strong> se completan solos.</li>
+    <li><strong>Assigning Custom Domains:</strong> asigna la URL <code>.vercel.app</code>.</li>
+  </ul>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/10-desplegando.png" alt="Pantalla Deployment con los logs de build en curso" loading="lazy"></button><figcaption>Build en curso. No pulses Cancel Deployment.</figcaption></figure>
+</section>
+
+<section class="block" id="p6">
+  <div class="step-h"><span class="n">6</span><h2>Comprobar el resultado</h2></div>
+  <p>Al terminar aparece <strong>Deployed to Production</strong>, con una miniatura del sitio y el tiempo total. Aquí fueron 26 segundos.</p>
+  <ul class="l">
+    <li><strong>Visit</strong> abre el sitio en su URL pública.</li>
+    <li><strong>Continue to Project</strong> lleva al panel del proyecto (deployments, dominios, ajustes).</li>
+    <li>El icono junto a Visit copia la URL.</li>
+  </ul>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/11-exito.png" alt="Pantalla Deployed to Production con la miniatura del tablero Kanban" loading="lazy"></button><figcaption>Despliegue exitoso del tablero Kanban.</figcaption></figure>
+  <div class="note warn"><strong>Ojo con esta captura</strong>La miniatura muestra un banner rojo («Ocurrió un error inesperado») y las columnas vacías. El despliegue funcionó; lo que falla es la conexión del front con su backend. Mira «El sitio abre, pero no carga datos» en la sección siguiente.</div>
+</section>
+
+<section class="block" id="problemas">
+  <h2>Problemas comunes</h2>
+  <details>
+    <summary>El sitio abre en blanco o responde 404</summary>
+    <div class="in">
+      <p>Casi siempre es la carpeta de salida. En Vercel entra al proyecto → <em>Settings</em> → <em>Build and Output Settings</em>, activa el lápiz de <strong>Output Directory</strong> y escribe la ruta real:</p>
+      <pre><button class="copy" type="button">Copiar</button><code>dist/&lt;nombre-del-proyecto&gt;/browser</code></pre>
+      <p>El nombre sale de la clave <code>projects</code> en tu <code>angular.json</code>. Guarda y vuelve a desplegar.</p>
+    </div>
+  </details>
+  <details>
+    <summary>Al recargar una ruta (por ejemplo /board) sale 404</summary>
+    <div class="in">
+      <p>Angular maneja las rutas en el navegador, pero el servidor no las conoce. Crea un archivo <code>vercel.json</code> en la raíz del repositorio:</p>
+      <pre><button class="copy" type="button">Copiar</button><code>{ "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }] }</code></pre>
+      <p>Haz commit y push a <code>main</code>. Vercel redespliega solo.</p>
+    </div>
+  </details>
+  <details>
+    <summary>El sitio abre, pero no carga datos</summary>
+    <div class="in">
+      <p>Si tu front llama a un API en <code>http://localhost:8080</code>, esa dirección solo existe en tu equipo. Desde Vercel nadie puede llegar a ella. Tienes dos caminos:</p>
+      <ul class="l">
+        <li>Desplegar el backend en un servicio público y cambiar la URL en <code>src/environments/environment.ts</code>.</li>
+        <li>Si el API ya es público, solo cambiar esa URL, hacer commit y push.</li>
+      </ul>
+      <p>El API público debe permitir peticiones desde tu dominio <code>.vercel.app</code> (CORS).</p>
+    </div>
+  </details>
+  <details>
+    <summary>El build falla</summary>
+    <div class="in">
+      <p>Abre <strong>Build Logs</strong> y lee las últimas líneas. Causas habituales:</p>
+      <ul class="l">
+        <li>El proyecto no compila en tu equipo con <code>npm run build</code>. Corrígelo primero ahí.</li>
+        <li>Un archivo escrito con otra mayúscula o minúscula en un import. Linux distingue entre <code>Board.ts</code> y <code>board.ts</code>; Windows no.</li>
+        <li>Falta una dependencia en <code>package.json</code> que solo tenías instalada de forma global.</li>
+      </ul>
+    </div>
+  </details>
+  <details>
+    <summary>Mi repositorio no aparece en la lista</summary>
+    <div class="in">
+      <p>Repite el paso 3: <em>Adjust GitHub App Permissions</em>, agrega el repo y guarda. Si el repo es de una organización de GitHub, el plan Hobby no lo permite.</p>
+    </div>
+  </details>
+</section>
+
+<section class="block" id="despues">
+  <h2>Después del deploy</h2>
+  <ul class="l">
+    <li><strong>Despliegue automático.</strong> Cada <code>git push</code> a <code>main</code> genera un nuevo despliegue de producción. Eso es tu integración y entrega continua (CI/CD), sin configurar nada más.</li>
+    <li><strong>Previews.</strong> Cada rama y cada pull request recibe su propia URL de prueba.</li>
+    <li><strong>Historial.</strong> En <em>Deployments</em> puedes volver a una versión anterior si algo sale mal.</li>
+    <li><strong>Dominio propio.</strong> En <em>Settings → Domains</em> puedes agregar el tuyo. Si no, queda <code>nombre.vercel.app</code>.</li>
+  </ul>
+</section>
+
+<section class="block" id="limites">
+  <h2>Límites del plan gratis</h2>
+  <p>Según la <a href="https://vercel.com/docs/limits" target="_blank" rel="noopener">documentación oficial de Vercel</a> (revisada en noviembre de 2026):</p>
+  <div class="tw"><table>
+    <thead><tr><th></th><th>Hobby</th><th>Pro</th></tr></thead>
+    <tbody>
+      <tr><td>Proyectos</td><td>200</td><td>Ilimitados</td></tr>
+      <tr><td>Despliegues por día</td><td>100</td><td>6000</td></tr>
+      <tr><td>Proyectos por repo de Git</td><td>25</td><td>150</td></tr>
+    </tbody>
+  </table></div>
+  <p>El plan Hobby no permite conectar repositorios que pertenezcan a una organización de GitHub: el repo debe estar en tu cuenta personal.</p>
+</section>
+
+<section class="block" id="pages">
+  <h2>Publicar en GitHub Pages</h2>
+  <p>GitHub Pages publica sitios estáticos (HTML, CSS, JavaScript e imágenes) directamente desde un repositorio, gratis y sin servidor. Sirve para documentación, portafolios y manuales como este. No ejecuta backends. Una aplicación Angular necesita compilarse antes, y para eso Vercel es más cómodo.</p>
+
+  <h3>Antes de empezar</h3>
+  <ul class="check">
+    <li><span>Un repositorio en GitHub. En el plan gratis debe ser <b>público</b>.</span></li>
+    <li><span>Un archivo llamado <code>index.html</code> en la <b>raíz</b> del repositorio. Es la página de inicio del sitio.</span></li>
+    <li><span>Los archivos ya subidos a la rama <code>main</code>.</span></li>
+  </ul>
+
+  <h3>Paso 1. Subir los archivos</h3>
+  <p>Desde la carpeta de tu proyecto:</p>
+  <pre><button class="copy" type="button">Copiar</button><code>git add .
+git commit -m "Publicar sitio"
+git push origin main</code></pre>
+
+  <h3>Paso 2. Abrir Settings → Pages</h3>
+  <p>En el repositorio pulsa <strong>Settings</strong> y, en el menú de la izquierda, entra a <strong>Pages</strong>.</p>
+
+  <h3>Paso 3. Elegir de dónde se publica</h3>
+  <ol class="l">
+    <li>En <strong>Source</strong> elige <em>Deploy from a branch</em>.</li>
+    <li>En <strong>Branch</strong> selecciona <code>main</code> y la carpeta <code>/ (root)</code>.</li>
+    <li>Pulsa <strong>Save</strong>.</li>
+  </ol>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/12-github-pages.png" alt="Settings, Pages con Deploy from a branch, main y / (root) antes de guardar" loading="lazy"></button><figcaption>Settings → Pages antes de guardar. El mensaje «GitHub Pages is currently disabled» indica que todavía no está activado.</figcaption></figure>
+
+  <h3>Paso 4. Confirmar que se guardó</h3>
+  <p>Aparece una franja azul con <em>GitHub Pages source saved</em>. Debajo, el texto cambia a <em>Your GitHub Pages site is currently being built from the main branch</em>. Eso significa que GitHub empezó a construir el sitio.</p>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/13-github-pages-guardado.png" alt="Settings, Pages con el aviso GitHub Pages source saved" loading="lazy"></button><figcaption>Configuración guardada: el sitio se está construyendo desde la rama <code>main</code>.</figcaption></figure>
+
+  <h3>Paso 5. Esperar y abrir el sitio</h3>
+  <p>La publicación tarda de uno a dos minutos. Para seguirla tienes dos opciones:</p>
+  <ul class="l">
+    <li>Recarga <strong>Settings → Pages</strong>. Cuando termina, arriba aparece la dirección de tu sitio con un botón para visitarlo.</li>
+    <li>Abre la pestaña <strong>Actions</strong>. Ahí corre un proceso llamado <em>pages build and deployment</em>. Cuando queda en verde, el sitio está publicado.</li>
+  </ul>
+  <p>Cuando termina, arriba aparece el aviso <em>Your site is live at</em> con la dirección del sitio. Pulsa <strong>Visit site</strong> para abrirlo. El botón rojo <strong>Unpublish site</strong> retira el sitio: no lo pulses si quieres que siga publicado.</p>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/14-github-pages-publicado.png" alt="Settings, Pages con el aviso Your site is live at y los botones Visit site y Unpublish site" loading="lazy"></button><figcaption>Sitio publicado: la dirección aparece en Settings → Pages.</figcaption></figure>
+  <p>Al abrir la dirección ves tu <code>index.html</code> funcionando en Internet.</p>
+  <figure><button type="button" aria-label="Ampliar captura"><img src="img/15-sitio-publicado.png" alt="El manual abierto en cbarralesp.github.io/manual_despliegues" loading="lazy"></button><figcaption>El manual abierto desde su dirección pública.</figcaption></figure>
+  <p>La dirección sigue siempre este formato:</p>
+  <pre><button class="copy" type="button">Copiar</button><code>https://&lt;usuario&gt;.github.io/&lt;repositorio&gt;/</code></pre>
+  <p>Por ejemplo, para el usuario <code>cbarralesp</code> y el repositorio <code>manual_despliegues</code>: <code>https://cbarralesp.github.io/manual_despliegues/</code>.</p>
+
+  <h3>Actualizar el sitio</h3>
+  <p>No hay que repetir la configuración. Cada <code>git push</code> a <code>main</code> vuelve a publicar el sitio en uno o dos minutos.</p>
+
+  <h3>Problemas comunes</h3>
+  <details>
+    <summary>Sale 404 al abrir la dirección</summary>
+    <div class="in"><p>Espera un par de minutos y recarga. Si sigue igual, confirma que <code>index.html</code> esté en la raíz del repo, no dentro de una carpeta, y que en Pages esté seleccionada la carpeta <code>/ (root)</code>.</p></div>
+  </details>
+  <details>
+    <summary>La página abre, pero sin estilos o sin imágenes</summary>
+    <div class="in"><p>Casi siempre son rutas mal escritas. Usa rutas relativas como <code>img/foto.png</code>, sin <code>/</code> al inicio. GitHub Pages distingue mayúsculas y minúsculas: <code>Foto.png</code> y <code>foto.png</code> son archivos distintos.</p></div>
+  </details>
+  <details>
+    <summary>No me aparece la opción de Pages o no me deja activarla</summary>
+    <div class="in"><p>Revisa que el repositorio sea público. En el plan gratis, Pages no funciona con repositorios privados.</p></div>
+  </details>
+  <details>
+    <summary>Hice push, pero el sitio no cambia</summary>
+    <div class="in"><p>Espera uno o dos minutos y recarga con <code>Ctrl + F5</code>. Si sigue igual, revisa la pestaña <strong>Actions</strong>: un proceso en rojo indica un error de publicación.</p></div>
+  </details>
+</section>
+<footer>Manual elaborado con capturas reales de un despliegue de Angular 21 en Vercel. Los nombres de pantallas y botones están en inglés porque así los muestra Vercel.</footer>
+</main>
+</div>
+</div>
+
+<dialog class="zoom" id="zoom"><img alt="" id="zoomImg"></dialog>
+
+<script>
+(function(){
+  var dlg=document.getElementById('zoom'),zi=document.getElementById('zoomImg');
+  document.querySelectorAll('figure button').forEach(function(b){
+    b.addEventListener('click',function(){
+      var im=b.querySelector('img');zi.src=im.src;zi.alt=im.alt;
+      if(dlg.showModal){dlg.showModal();}
+    });
+  });
+  dlg.addEventListener('click',function(){dlg.close();});
+  document.querySelectorAll('button.copy').forEach(function(b){
+    b.addEventListener('click',function(){
+      var code=b.parentNode.querySelector('code');var t=code.innerText;
+      var done=function(){var o=b.textContent;b.textContent='Copiado';setTimeout(function(){b.textContent=o;},1400);};
+      try{navigator.clipboard.writeText(t).then(done,function(){var r=document.createRange();r.selectNodeContents(code);var s=getSelection();s.removeAllRanges();s.addRange(r);});}
+      catch(e){var r=document.createRange();r.selectNodeContents(code);var s=getSelection();s.removeAllRanges();s.addRange(r);}
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

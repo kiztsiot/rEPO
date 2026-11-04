@@ -1,0 +1,49 @@
+<div class="encabezado">
+  <div>
+    <h1>Mis préstamos</h1>
+    @if (socios.socioActual(); as socio) {
+      <p class="sub">{{ socio.nombre }} · {{ store.resumen().activos }} de {{ limite }} préstamos activos</p>
+    } @else {
+      <p class="sub">Elige un socio en la cabecera</p>
+    }
+  </div>
+  <a class="btn btn-primario" routerLink="/catalogo">Buscar libros</a>
+</div>
+
+@if (store.error(); as error) {
+  <div class="aviso aviso-error" role="alert">
+    {{ error }}
+    @if (socios.socioActual(); as socio) {
+      <button type="button" class="btn btn-chico" (click)="store.cargar(socio.id)">Reintentar</button>
+    }
+  </div>
+}
+
+@if (store.resumen().limiteAlcanzado) {
+  <p class="aviso aviso-limite" role="status">Límite alcanzado: devuelve un libro antes de pedir otro.</p>
+}
+@if (store.resumen().vencidos > 0) {
+  <p class="aviso aviso-limite" role="status">Tienes {{ store.resumen().vencidos }} préstamo(s) vencido(s): devuélvelos cuanto antes.</p>
+}
+
+<section aria-label="En préstamo">
+  <h2>En préstamo <span class="contador">{{ store.resumen().activos }} / {{ limite }}</span></h2>
+  <div class="lista">
+    @for (prestamo of store.activos(); track prestamo.id) {
+      <app-prestamo-card [prestamo]="prestamo" [ocupado]="devolviendoId() === prestamo.id" (devolver)="devolver($event)" />
+    } @empty {
+      <p class="vacia">{{ store.cargando() ? 'Cargando…' : 'No tienes libros en préstamo' }}</p>
+    }
+  </div>
+</section>
+
+<section aria-label="Historial">
+  <h2>Historial <span class="contador">{{ store.resumen().devueltos }}</span></h2>
+  <div class="lista">
+    @for (prestamo of store.historial(); track prestamo.id) {
+      <app-prestamo-card [prestamo]="prestamo" />
+    } @empty {
+      <p class="vacia">Aún no hay devoluciones</p>
+    }
+  </div>
+</section>

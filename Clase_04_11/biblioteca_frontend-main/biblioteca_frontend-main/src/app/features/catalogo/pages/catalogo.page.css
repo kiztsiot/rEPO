@@ -1,0 +1,18 @@
+.encabezado { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+h1 { margin: 0; font-size: 1.6rem; }
+.sub { margin: 0; color: var(--texto-suave); font-size: .9rem; }
+
+.buscador { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.buscador .campo { flex: 1 1 18rem; }
+.solo { display: flex; align-items: center; gap: .4rem; font-size: .9rem; font-weight: 600; white-space: nowrap; }
+
+.aviso-socio { margin: 0 0 .75rem; font-size: .88rem; padding: .5rem .8rem; border-radius: .6rem; background: var(--aviso-fondo); color: var(--aviso-texto); }
+.aviso-error { background: var(--alerta-fondo); border: 1px solid var(--peligro); color: var(--alerta-texto); padding: .6rem .9rem; border-radius: .6rem; margin-bottom: .75rem; }
+
+/* auto-fill + minmax(0, ...): las tarjetas se reparten el ancho sin generar scroll lateral */
+.rejilla { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: .9rem; align-items: stretch; }
+.vacia { grid-column: 1 / -1; margin: 0; text-align: center; color: var(--texto-suave); padding: 2rem 0; }
+
+@media (max-width: 480px) {
+  .encabezado { flex-wrap: wrap; }
+}

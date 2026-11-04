@@ -1,0 +1,15 @@
+:host { display: block; }
+
+.tarjeta {
+  background: var(--superficie); border: 1px solid var(--borde); border-radius: .75rem;
+  padding: .75rem 1rem; display: flex; justify-content: space-between; align-items: center; gap: .75rem; flex-wrap: wrap;
+  box-shadow: 0 2px 8px rgb(60 50 20 / .06);
+}
+.tarjeta.vencido { border-color: var(--peligro); background: #fff7f5; }
+.tarjeta.devuelto { opacity: .8; }
+
+.principal { min-width: 0; flex: 1 1 14rem; }
+.titulo { margin: 0; font-size: 1rem; font-weight: 700; overflow-wrap: anywhere; }
+.fechas { margin: .15rem 0 0; font-size: .82rem; color: var(--texto-suave); }
+
+.lado { display: flex; align-items: center; gap: .6rem; }

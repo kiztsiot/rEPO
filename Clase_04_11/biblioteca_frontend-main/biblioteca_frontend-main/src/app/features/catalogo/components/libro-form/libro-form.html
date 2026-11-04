@@ -1,0 +1,63 @@
+<div class="fondo" (click)="cancelar.emit()">
+  <form class="dialogo" [formGroup]="form" (ngSubmit)="enviar()" (click)="$event.stopPropagation()"
+    role="dialog" aria-modal="true" aria-labelledby="titulo-dialogo">
+    <h2 id="titulo-dialogo">Nuevo libro</h2>
+
+    <label class="grupo">
+      <span>Título *</span>
+      <input class="campo" formControlName="titulo" [maxlength]="reglas.tituloMaxLargo" autofocus />
+      @if (form.controls.titulo.touched && form.controls.titulo.invalid) {
+        <small class="error">El título es obligatorio (máx. {{ reglas.tituloMaxLargo }} caracteres)</small>
+      }
+    </label>
+
+    <label class="grupo">
+      <span>Autor *</span>
+      <input class="campo" formControlName="autor" [maxlength]="reglas.autorMaxLargo" />
+      @if (form.controls.autor.touched && form.controls.autor.invalid) {
+        <small class="error">El autor es obligatorio (máx. {{ reglas.autorMaxLargo }} caracteres)</small>
+      }
+    </label>
+
+    <div class="fila">
+      <label class="grupo">
+        <span>ISBN *</span>
+        <input class="campo" formControlName="isbn" placeholder="978-0132350884" maxlength="17" />
+        @if (form.controls.isbn.touched && form.controls.isbn.invalid) {
+          <small class="error">Entre 10 y 17 dígitos o guiones</small>
+        }
+      </label>
+      <label class="grupo">
+        <span>Categoría *</span>
+        <input class="campo" formControlName="categoria" [maxlength]="reglas.categoriaMaxLargo" />
+        @if (form.controls.categoria.touched && form.controls.categoria.invalid) {
+          <small class="error">La categoría es obligatoria</small>
+        }
+      </label>
+    </div>
+
+    <div class="fila">
+      <label class="grupo">
+        <span>Año de publicación *</span>
+        <input class="campo" type="number" formControlName="anioPublicacion" [min]="reglas.anioMin" [max]="reglas.anioMax" />
+        @if (form.controls.anioPublicacion.touched && form.controls.anioPublicacion.invalid) {
+          <small class="error">Entre {{ reglas.anioMin }} y {{ reglas.anioMax }}</small>
+        }
+      </label>
+      <label class="grupo">
+        <span>Ejemplares *</span>
+        <input class="campo" type="number" formControlName="ejemplares" [min]="reglas.ejemplaresMin" [max]="reglas.ejemplaresMax" />
+        @if (form.controls.ejemplares.touched && form.controls.ejemplares.invalid) {
+          <small class="error">Entre {{ reglas.ejemplaresMin }} y {{ reglas.ejemplaresMax }}</small>
+        }
+      </label>
+    </div>
+
+    <div class="acciones">
+      <button type="button" class="btn" (click)="cancelar.emit()">Cancelar</button>
+      <button type="submit" class="btn btn-primario" [disabled]="guardando()">
+        {{ guardando() ? 'Guardando…' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+</div>

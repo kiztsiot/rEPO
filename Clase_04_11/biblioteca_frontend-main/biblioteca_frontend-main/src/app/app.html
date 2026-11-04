@@ -1,0 +1,27 @@
+<header class="barra">
+  <div class="barra-interior">
+    <a class="marca" routerLink="/catalogo"><span class="marca-logo">📚</span> Biblioteca IPSS</a>
+
+    <nav class="menu" aria-label="Secciones">
+      <a routerLink="/catalogo" routerLinkActive="activo">Catálogo</a>
+      <a routerLink="/prestamos" routerLinkActive="activo">Mis préstamos</a>
+    </nav>
+
+    <label class="socio">
+      <span>Socio</span>
+      <select [value]="socios.socioActualId() ?? ''" (change)="cambiarSocio($event)" aria-label="Socio que realiza los préstamos">
+        @for (socio of socios.socios(); track socio.id) {
+          <option [value]="socio.id" [selected]="socio.id === socios.socioActualId()">{{ socio.nombre }}</option>
+        } @empty {
+          <option value="">Sin socios</option>
+        }
+      </select>
+    </label>
+  </div>
+</header>
+
+<main class="contenido">
+  <router-outlet />
+</main>
+
+<app-toast />

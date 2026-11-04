@@ -1,0 +1,52 @@
+<div class="encabezado">
+  <div>
+    <h1>Catálogo</h1>
+    <p class="sub">
+      {{ store.resumen().total }} libros · {{ store.resumen().conCopias }} con copias disponibles ·
+      {{ store.resumen().agotados }} agotados
+    </p>
+  </div>
+  <button type="button" class="btn btn-primario" (click)="formularioAbierto.set(true)">+ Nuevo libro</button>
+</div>
+
+<div class="buscador" role="search">
+  <input class="campo" type="search" [formControl]="busqueda"
+    placeholder="Buscar por título, autor, ISBN o categoría…" aria-label="Buscar libros" />
+  <label class="solo">
+    <input type="checkbox" [formControl]="soloDisponibles" /> Solo disponibles
+  </label>
+  <button type="button" class="btn" (click)="limpiar()">Limpiar</button>
+</div>
+
+@if (!socios.socioActual()) {
+  <p class="aviso-socio" role="status">Elige un socio en la cabecera para poder prestar libros.</p>
+}
+
+@if (store.error(); as error) {
+  <div class="aviso-error" role="alert">
+    {{ error }} <button type="button" class="btn btn-chico" (click)="store.cargar()">Reintentar</button>
+  </div>
+}
+
+<section class="rejilla" aria-label="Libros del catálogo">
+  @for (libro of store.libros(); track libro.id) {
+    <app-libro-card
+      [libro]="libro"
+      [disponibilidad]="disponibilidades()[libro.id] ?? null"
+      [puedePrestar]="socios.socioActual() !== null"
+      [ocupado]="prestandoId() === libro.id"
+      (consultar)="consultar($event)"
+      (prestar)="prestar($event)"
+    />
+  } @empty {
+    <p class="vacia">{{ store.cargando() ? 'Cargando…' : 'No hay libros que coincidan con la búsqueda' }}</p>
+  }
+</section>
+
+@if (formularioAbierto()) {
+  <app-libro-form
+    [guardando]="guardando()"
+    (guardar)="guardar($event)"
+    (cancelar)="formularioAbierto.set(false)"
+  />
+}
